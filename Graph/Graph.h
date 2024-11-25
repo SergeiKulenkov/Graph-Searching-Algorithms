@@ -1,5 +1,6 @@
 #pragma once
-#include <vector>
+#include <unordered_map>
+#include "Vertex.h"
 
 struct PairIndexDistance
 {
@@ -10,16 +11,20 @@ struct PairIndexDistance
 class Graph
 {
 public:
-	void AddVertex(const std::vector<int>& vertices);
+	Graph() = delete;
+
+	Graph(std::vector<Vertex>& vertices);
+
+	void AddVertex(const Vertex& vertex);
 
 	// print the graph using DFS starting from the source
-	void PrintDepthFirst(int sourceIndex);
+	void TraverseDepthFirst(const int sourceID, std::vector<int>& result);
 
 	// print the graph using BFS starting from the source
-	void PrintBreadthFirst(int sourceIndex);
+	void TraverseBreadthFirst(const int sourceID, std::vector<int>& result);
 
 	// uses BFS to check if a path exists from the source to the goal
-	bool HasPath(int sourceIndex, int goalIndex);
+	bool HasPath(const int sourceID, const int goalID);
 
 	// uses DFS to traverse through each component and returns their count
 	int CountConnectedComponents();
@@ -28,17 +33,20 @@ public:
 	int GetLargestComponentSize();
 
 	// uses BFS to return the shortest length from vertexA to vertexB
-	int GetShortestPathLength(int vertexAIndex, int vertexBIndex);
+	int GetShortestPathLength(const int vertexAID, const int vertexBID);
 
 private:
-	// DFS utility for counting connected components
-	void DFSUtil(int vertexIndex, std::vector<bool>& visitedVertices);
+	void ResetSearchData();
 
-	// DFS utility for counting a component's size
-	int DFSUtilWithSizeCount(int vertexIndex, std::vector<bool>& visitedVertices);
+	// DFS utility for counting connected components
+	void DFSUtil(const int vertexID);
+
+	// DFS utility for counting component's size
+	int DFSUtilWithSizeCount(const int vertexID);
 
 	//////////
 
-	std::vector<std::vector<int>> adjacencyList;
+	std::unordered_map<int, Vertex> m_Vertices;
+	std::unordered_map<int, bool> m_VisitedVertices;
 };
 

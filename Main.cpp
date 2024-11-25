@@ -1,53 +1,98 @@
 #include <iostream>
 #include "Graph/Graph.h"
+#include "Graph/Vertex.h"
 
-void SetupGraph(Graph& graph)
+void PrintIDs(const std::vector<int>& IDs)
 {
-	std::vector<int> vertex0{ 1, 3 };
-	std::vector<int> vertex1{ 0, 2, 3, 4 };
-	std::vector<int> vertex2{ 1 };
-	std::vector<int> vertex3{ 0, 1, 4 };
-	std::vector<int> vertex4{ 1, 3 };
-	std::vector<int> vertex5{ 6 };
-	std::vector<int> vertex6{ 5 };
-
-	graph.AddVertex(vertex0);
-	graph.AddVertex(vertex1);
-	graph.AddVertex(vertex2);
-	graph.AddVertex(vertex3);
-	graph.AddVertex(vertex4);
-	graph.AddVertex(vertex5);
-	graph.AddVertex(vertex6);
+	for (const int ID : IDs)
+	{
+		if (ID <= 0)
+		{
+			break;
+		}
+		else
+		{
+			std::cout << ID << ", ";
+		}
+	}
+	std::cout << '\n';
 }
 
-///////////////////////////////
-
-int main()
+void ResetResult(std::vector<int>& IDs)
 {
-	Graph graph;
-	SetupGraph(graph);
+	for (int& ID : IDs)
+	{
+		if (ID <= 0)
+		{
+			break;
+		}
+		else
+		{
+			ID = 0;
+		}
+	}
+}
 
-	graph.PrintDepthFirst(0);
-	graph.PrintBreadthFirst(0);
+void Run(Graph& graph, const int size)
+{
+	std::vector<int> resultIDs(size);
+	const int sourceID = 33;
 
-	graph.PrintDepthFirst(4);
-	graph.PrintBreadthFirst(3);
+	std::cout << "Depth first printing starting from " << sourceID << " : ";
+	graph.TraverseDepthFirst(sourceID, resultIDs);
+	PrintIDs(resultIDs);
+	ResetResult(resultIDs);
 
-	// values for testing
-	int source = 1;
-	int goal = 6;
-	std::cout << "Has path (true or false) from " << source << " to " << goal << " - " << graph.HasPath(source, goal) << '\n';
+	std::cout << "Breadth first printing starting from " << sourceID << " : ";
+	graph.TraverseBreadthFirst(sourceID, resultIDs);
+	PrintIDs(resultIDs);
+	ResetResult(resultIDs);
 
-	source = 0;
-	goal = 4;
-	std::cout << "Has path (true or false) from " << source << " to " << goal << " - " << graph.HasPath(source, goal) << '\n';
+	const int startID = 53;
+	const int endID = 65;
+	std::cout << "Has path from " << startID << " to " << endID << " - " << (graph.HasPath(startID, endID) ? "true" : "false") << '\n';
+
+	const int startID2 = 13;
+	const int endID2 = 33;
+	std::cout << "Has path from " << startID2 << " to " << endID2 << " - " << (graph.HasPath(startID2, endID2) ? "true" : "false") << '\n';
 
 	std::cout << "Connected components count = " << graph.CountConnectedComponents() << '\n';
 	std::cout << "Largest connected component = " << graph.GetLargestComponentSize() << '\n';
 
-	int vertexAIndex = 0;
-	int vertexBIndex = 4;
-	std::cout << "Shortest path from " << vertexAIndex << " to " << vertexBIndex << " = " << graph.GetShortestPathLength(vertexAIndex, vertexBIndex) << '\n';
+	const int vertexAID = 13;
+	const int vertexBID = 33;
+	std::cout << "Shortest path from " << vertexAID << " to " << vertexBID << " = " << graph.GetShortestPathLength(vertexAID, vertexBID) << '\n';
+}
 
+void Setup(std::vector<Vertex>& vertices)
+{
+	std::vector<int> IDs{ 13, 53, 26, 77, 33, 42, 65 };
+	std::vector<Person> persons;
+	persons.reserve(IDs.size());
+	persons.emplace_back(IDs[0], "A", 25);
+	persons.emplace_back(IDs[1], "B", 28);
+	persons.emplace_back(IDs[2], "C", 22);
+	persons.emplace_back(IDs[3], "D", 26);
+	persons.emplace_back(IDs[4], "E", 25);
+	persons.emplace_back(IDs[5], "F", 25);
+	persons.emplace_back(IDs[6], "G", 23);
+
+	vertices.reserve(IDs.size());
+	vertices.emplace_back(std::move(persons[0]), std::initializer_list({ IDs[1], IDs[3] }));
+	vertices.emplace_back(std::move(persons[1]), std::initializer_list({ IDs[0], IDs[2], IDs[3], IDs[4] }));
+	vertices.emplace_back(std::move(persons[2]), std::initializer_list({ IDs[1] }));
+	vertices.emplace_back(std::move(persons[3]), std::initializer_list({ IDs[0], IDs[1], IDs[4] }));
+	vertices.emplace_back(std::move(persons[4]), std::initializer_list({ IDs[1], IDs[3] }));
+	vertices.emplace_back(std::move(persons[5]), std::initializer_list({ IDs[6] }));
+	vertices.emplace_back(std::move(persons[6]), std::initializer_list({ IDs[5] }));
+}
+
+int main()
+{
+	std::vector<Vertex> vertices;
+	Setup(vertices);
+	Graph graph(vertices);
+	Run(graph, vertices.size());
+	
 	return 0;
 }

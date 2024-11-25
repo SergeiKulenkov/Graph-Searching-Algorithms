@@ -1,103 +1,114 @@
 #include "Graph.h"
-#include <iostream>
 #include <stack>
 #include <queue>
 
-void Graph::AddVertex(const std::vector<int>& vertices)
+Graph::Graph(std::vector<Vertex>& vertices)
 {
-	adjacencyList.push_back(vertices);
+	for (Vertex& vertex : vertices)
+	{
+		m_Vertices.emplace(vertex.GetID(), std::move(vertex));
+	}
 }
 
-void Graph::PrintDepthFirst(int sourceIndex)
+void Graph::ResetSearchData()
 {
-	std::cout << "Depth first printing starting from " << sourceIndex << " : ";
+	for (const auto& [key, value] : m_Vertices)
+	{
+		m_VisitedVertices[key] = false;
+	}
+}
 
-	int currentVertex = 0;
-	std::vector<bool> visitedVertices(adjacencyList.size());
+void Graph::AddVertex(const Vertex& vertex)
+{
+	m_Vertices.emplace(vertex.GetID(), vertex);
+}
+
+void Graph::TraverseDepthFirst(const int sourceID, std::vector<int>& result)
+{
+	ResetSearchData();
+	int currentVertexID = 0;
+	int vertexIndex = 0;
 	std::stack<int> verticesStack;
-	verticesStack.push(sourceIndex);
+	verticesStack.push(sourceID);
 
 	while (verticesStack.size() > 0)
 	{
-		if (!visitedVertices[verticesStack.top()])
+		if (!m_VisitedVertices[verticesStack.top()])
 		{
-			currentVertex = verticesStack.top();
-			visitedVertices[currentVertex] = true;
-			std::cout << currentVertex << " ";
+			currentVertexID = verticesStack.top();
+			m_VisitedVertices[currentVertexID] = true;
+			result[vertexIndex] = currentVertexID;
+			vertexIndex++;
 		}
 		verticesStack.pop();
 
-		for (int neighbor : adjacencyList[currentVertex])
+		for (const int neighborID : m_Vertices[currentVertexID].GetAdjacentIDs())
 		{
-			if (!visitedVertices[neighbor])
+			if (!m_VisitedVertices[neighborID])
 			{
-				verticesStack.push(neighbor);
+				verticesStack.push(neighborID);
 			}
 		}
 	}
-
-	std::cout << '\n';
 }
 
-void Graph::PrintBreadthFirst(int sourceIndex)
+void Graph::TraverseBreadthFirst(const int sourceID, std::vector<int>& result)
 {
-	std::cout << "Breadth first printing starting from " << sourceIndex << " : ";
-
-	int currentVertex = 0;
-	std::vector<bool> visitedVertices(adjacencyList.size());
+	ResetSearchData();
+	int currentVertexID = 0;
+	int vertexIndex = 0;
 	std::queue<int> verticesQueue;
-	verticesQueue.push(sourceIndex);
+	verticesQueue.push(sourceID);
 
 	while (verticesQueue.size() > 0)
 	{
-		if (!visitedVertices[verticesQueue.front()])
+		if (!m_VisitedVertices[verticesQueue.front()])
 		{
-			currentVertex = verticesQueue.front();
-			visitedVertices[currentVertex] = true;
-			std::cout << currentVertex << " ";
+			currentVertexID = verticesQueue.front();
+			m_VisitedVertices[currentVertexID] = true;
+			result[vertexIndex] = currentVertexID;
+			vertexIndex++;
 		}
 		verticesQueue.pop();
 
-		for (int neighbor : adjacencyList[currentVertex])
+		for (const int neighborID : m_Vertices[currentVertexID].GetAdjacentIDs())
 		{
-			if (!visitedVertices[neighbor])
+			if (!m_VisitedVertices[neighborID])
 			{
-				verticesQueue.push(neighbor);
+				verticesQueue.push(neighborID);
 			}
 		}
 	}
-
-	std::cout << '\n';
 }
 
-bool Graph::HasPath(int sourceIndex, int goalIndex)
+bool Graph::HasPath(const int sourceID, const int goalID)
 {
+	ResetSearchData();
 	bool hasPath = false;
-	int currentVertex = 0;
-	std::vector<bool> visitedVertices(adjacencyList.size());
+	int currentVertexID = 0;
 	std::queue<int> verticesQueue;
-	verticesQueue.push(sourceIndex);
+	verticesQueue.push(sourceID);
 
 	while (verticesQueue.size() > 0)
 	{
-		if (!visitedVertices[verticesQueue.front()])
+		if (!m_VisitedVertices[verticesQueue.front()])
 		{
-			currentVertex = verticesQueue.front();
-			if (currentVertex == goalIndex)
+			currentVertexID = verticesQueue.front();
+			if (currentVertexID == goalID)
 			{
 				hasPath = true;
 				break;
 			}
 
-			visitedVertices[currentVertex] = true;
+			m_VisitedVertices[currentVertexID] = true;
 		}
 		verticesQueue.pop();
 
-		for (int neighbor : adjacencyList[currentVertex])
+		for (const int neighborID : m_Vertices[currentVertexID].GetAdjacentIDs())
 		{
-			if (!visitedVertices[neighbor])
+			if (!m_VisitedVertices[neighborID])
 			{
-				verticesQueue.push(neighbor);
+				verticesQueue.push(neighborID);
 			}
 		}
 	}
@@ -105,28 +116,28 @@ bool Graph::HasPath(int sourceIndex, int goalIndex)
 	return hasPath;
 }
 
-void Graph::DFSUtil(int vertexindex, std::vector<bool>& visitedVertices)
+void Graph::DFSUtil(const int vertexID)
 {
-	visitedVertices.at(vertexindex) = true;
-	for (int neighbor : adjacencyList[vertexindex])
+	m_VisitedVertices[vertexID] = true;
+	for (const int neighborID : m_Vertices[vertexID].GetAdjacentIDs())
 	{
-		if (!visitedVertices.at(neighbor))
+		if (!m_VisitedVertices[neighborID])
 		{
-			DFSUtil(neighbor, visitedVertices);
+			DFSUtil(neighborID);
 		}
 	}
 }
 
 int Graph::CountConnectedComponents()
 {
+	ResetSearchData();
 	int count = 0;
-	std::vector<bool> visitedVertices(adjacencyList.size());
 
-	for (int i = 0; i < adjacencyList.size(); i++)
+	for (const auto& [key, value] : m_Vertices)
 	{
-		if (!visitedVertices[i])
+		if (!m_VisitedVertices[key])
 		{
-			DFSUtil(i, visitedVertices);
+			DFSUtil(key);
 			count++;
 		}
 	}
@@ -134,17 +145,17 @@ int Graph::CountConnectedComponents()
 	return count;
 }
 
-int Graph::DFSUtilWithSizeCount(int vertexindex, std::vector<bool>& visitedVertices)
+int Graph::DFSUtilWithSizeCount(const int vertexID)
 {
 	int size = 0;
-	if (!visitedVertices.at(vertexindex))
+	if (!m_VisitedVertices[vertexID])
 	{
-		visitedVertices.at(vertexindex) = true;
+		m_VisitedVertices[vertexID] = true;
 		size = 1;
 
-		for (int neighbor : adjacencyList[vertexindex])
+		for (const int neighborID : m_Vertices[vertexID].GetAdjacentIDs())
 		{
-			size += DFSUtilWithSizeCount(neighbor, visitedVertices);
+			size += DFSUtilWithSizeCount(neighborID);
 		}
 	}
 
@@ -153,15 +164,15 @@ int Graph::DFSUtilWithSizeCount(int vertexindex, std::vector<bool>& visitedVerti
 
 int Graph::GetLargestComponentSize()
 {
+	ResetSearchData();
 	int size = 0;
 	int largestSize = 0;
-	std::vector<bool> visitedVertices(adjacencyList.size());
 
-	for (int i = 0; i < adjacencyList.size(); i++)
+	for (const auto& [key, value] : m_Vertices)
 	{
-		if (!visitedVertices[i])
+		if (!m_VisitedVertices[key])
 		{
-			size = DFSUtilWithSizeCount(i, visitedVertices);
+			size = DFSUtilWithSizeCount(key);
 			if (size > largestSize)
 			{
 				largestSize = size;
@@ -172,35 +183,35 @@ int Graph::GetLargestComponentSize()
 	return largestSize;
 }
 
-int Graph::GetShortestPathLength(int vertexAIndex, int vertexBIndex)
+int Graph::GetShortestPathLength(const int vertexAID, const int vertexBID)
 {
+	ResetSearchData();
 	int shortestLength = 0;
-	std::vector<bool> visitedVertices(adjacencyList.size());
 
 	PairIndexDistance current{0, 0};
 	std::queue<PairIndexDistance> verticesQueue;
-	verticesQueue.push({ vertexAIndex, 0 });
+	verticesQueue.push({ vertexAID, 0 });
 
 	while (verticesQueue.size() > 0)
 	{
-		if (!visitedVertices[verticesQueue.front().index])
+		if (!m_VisitedVertices[verticesQueue.front().index])
 		{
 			current = verticesQueue.front();
-			if (current.index == vertexBIndex)
+			if (current.index == vertexBID)
 			{
 				shortestLength = current.distance;
 				break;
 			}
 
-			visitedVertices[current.index] = true;
+			m_VisitedVertices[current.index] = true;
 		}
 		verticesQueue.pop();
 
-		for (int neighbor : adjacencyList[current.index])
+		for (const int neighborID : m_Vertices[current.index].GetAdjacentIDs())
 		{
-			if (!visitedVertices[neighbor])
+			if (!m_VisitedVertices[neighborID])
 			{
-				verticesQueue.push({ neighbor, current.distance + 1 });
+				verticesQueue.push({ neighborID, current.distance + 1 });
 			}
 		}
 	}
