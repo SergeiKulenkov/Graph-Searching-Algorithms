@@ -1,6 +1,6 @@
 /.vs
 /Binaries
-/Graph Searching Algorithms.sln
-/Graph Searching Algorithms.vcxproj
-/Graph Searching Algorithms.vcxproj.filters
-/Graph Searching Algorithms.vcxproj.user
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.sln
