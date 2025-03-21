@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+//////////
+
 class Person
 {
 public:
@@ -16,7 +18,7 @@ public:
 			m_Id(person.m_Id), m_Name(person.m_Name), m_Age(person.m_Age)
 	{ }
 
-	Person(Person&& person) : 
+	Person(Person&& person) noexcept :
 			m_Id(person.m_Id), m_Name(person.m_Name), m_Age(person.m_Age)
 	{ }
 
@@ -43,7 +45,7 @@ public:
 			m_Data(vertex.m_Data), m_AdjacentIDs(vertex.m_AdjacentIDs)
 	{ }
 
-	Vertex(Vertex&& vertex) : 
+	Vertex(Vertex&& vertex) noexcept :
 			m_Data(std::move(vertex.m_Data)), m_AdjacentIDs(vertex.m_AdjacentIDs)
 	{ }
 

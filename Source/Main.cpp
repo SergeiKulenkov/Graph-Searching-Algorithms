@@ -2,9 +2,11 @@
 #include "Graph/Graph.h"
 #include "Graph/Vertex.h"
 
+//////////
+
 void PrintIDs(const std::vector<int>& IDs)
 {
-	for (const int ID : IDs)
+	for (const int& ID : IDs)
 	{
 		if (ID <= 0)
 		{
@@ -18,7 +20,7 @@ void PrintIDs(const std::vector<int>& IDs)
 	std::cout << '\n';
 }
 
-void ResetResult(std::vector<int>& IDs)
+void ResetVector(std::vector<int>& IDs)
 {
 	for (int& ID : IDs)
 	{
@@ -35,18 +37,20 @@ void ResetResult(std::vector<int>& IDs)
 
 void Run(Graph& graph, const int size)
 {
-	std::vector<int> resultIDs(size);
-	const int sourceID = 33;
+	{
+		std::vector<int> resultIDs(size);
+		const int sourceID = 33;
 
-	std::cout << "Depth first printing starting from " << sourceID << " : ";
-	graph.TraverseDepthFirst(sourceID, resultIDs);
-	PrintIDs(resultIDs);
-	ResetResult(resultIDs);
+		std::cout << "Depth first printing starting from " << sourceID << " : ";
+		graph.TraverseDepthFirst(sourceID, resultIDs);
+		PrintIDs(resultIDs);
+		ResetVector(resultIDs);
 
-	std::cout << "Breadth first printing starting from " << sourceID << " : ";
-	graph.TraverseBreadthFirst(sourceID, resultIDs);
-	PrintIDs(resultIDs);
-	ResetResult(resultIDs);
+		std::cout << "Breadth first printing starting from " << sourceID << " : ";
+		graph.TraverseBreadthFirst(sourceID, resultIDs);
+		PrintIDs(resultIDs);
+		ResetVector(resultIDs);
+	}
 
 	const int startID = 53;
 	const int endID = 65;
@@ -66,7 +70,7 @@ void Run(Graph& graph, const int size)
 
 void Setup(std::vector<Vertex>& vertices)
 {
-	std::vector<int> IDs{ 13, 53, 26, 77, 33, 42, 65 };
+	static const std::vector<int> IDs = { 13, 53, 26, 77, 33, 42, 65 };
 	std::vector<Person> persons;
 	persons.reserve(IDs.size());
 	persons.emplace_back(IDs[0], "A", 25);
@@ -87,12 +91,15 @@ void Setup(std::vector<Vertex>& vertices)
 	vertices.emplace_back(std::move(persons[6]), std::initializer_list({ IDs[5] }));
 }
 
+//////////
+
 int main()
 {
 	std::vector<Vertex> vertices;
 	Setup(vertices);
+
 	Graph graph(vertices);
-	Run(graph, vertices.size());
+	Run(graph, static_cast<int>(vertices.size()));
 	
 	return 0;
 }

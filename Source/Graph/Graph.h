@@ -2,11 +2,15 @@
 #include <unordered_map>
 #include "Vertex.h"
 
+//////////
+
 struct PairIndexDistance
 {
 	int index;
 	int distance;
 };
+
+//////////
 
 class Graph
 {
